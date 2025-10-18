@@ -49,14 +49,39 @@ def call_gemini_api(prompt):
         if response.status_code == 200:
             result = response.json()
             if "candidates" in result and len(result["candidates"]) > 0:
-                return result["candidates"][0]["content"]["parts"][0]["text"]
+                # Gemini APIの応答からテキストを抽出
+                text_content = result["candidates"][0]["content"]["parts"][0]["text"]
+                # JSON形式でない場合があるため、JSONブロックを抽出
+                try:
+                    start_idx = text_content.find("{")
+                    end_idx = text_content.rfind("}") + 1
+                    if start_idx != -1 and end_idx != -1:
+                        json_str = text_content[start_idx:end_idx]
+                        # JSONが不正な場合に備えてjson.loadsをtry-exceptで囲む
+                        json.loads(json_str) # 有効なJSONかチェック
+                        return json_str # 有効なJSON文字列を返す
+                    else:
+                        print(f"Warning: No JSON object found in Gemini response: {text_content[:200]}...")
+                        return text_content # JSONが見つからない場合はそのまま返す
+                except json.JSONDecodeError as json_err:
+                    print(f"JSON Decode Error in Gemini response: {json_err} - Response: {text_content[:200]}...")
+                    return text_content # JSONパースエラーの場合はそのまま返す
             else:
-                return "API response was not in the expected format."
+                print(f"Warning: Gemini API response was not in the expected format or empty: {result}")
+                return json.dumps({"error": "API response was not in the expected format or empty."})
         else:
-            return f"API call error: {response.status_code} - {response.text}"
+            print(f"Error: Gemini API call error: {response.status_code} - {response.text}")
+            return json.dumps({"error": f"API call error: {response.status_code} - {response.text}"})
             
+    except requests.exceptions.Timeout:
+        print("Error during API call: Request timed out.")
+        return json.dumps({"error": "API call timed out."})
+    except requests.exceptions.RequestException as req_err:
+        print(f"Error during API call: Request exception - {req_err}")
+        return json.dumps({"error": f"API request failed: {str(req_err)}"})
     except Exception as e:
-        return f"Error during API call: {str(e)}"
+        print(f"Unexpected error during API call: {str(e)}")
+        return json.dumps({"error": f"Unexpected error: {str(e)}"})
 
 def search_arxiv_papers_simple(query, limit=10):
     """Enhanced arXiv paper search with increased limit"""
