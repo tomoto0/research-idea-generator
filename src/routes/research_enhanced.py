@@ -348,7 +348,7 @@ Respond only in valid JSON format."""
         print(f"Initial Response: {initial_response[:200]}...")
         
         # Parse response
-            research_directions = []
+
             try:
                 # call_gemini_apiから返されるのは既にJSON文字列の可能性があるため、直接パースを試みる
                 parsed_initial = json.loads(initial_response)
