@@ -348,42 +348,68 @@ Respond only in valid JSON format."""
         print(f"Initial Response: {initial_response[:200]}...")
         
         # Parse response
-
-            try:
-                # call_gemini_apiから返されるのは既にJSON文字列の可能性があるため、直接パースを試みる
-                parsed_initial = json.loads(initial_response)
-                research_directions = parsed_initial.get("research_directions", [])
-                if not research_directions:
-                    print(f"Warning: 'research_directions' key not found or empty in Gemini response: {initial_response[:200]}...")
-            except json.JSONDecodeError as e:
-                print(f"JSON Decode Error after call_gemini_api: {e} - Response: {initial_response[:200]}...")
-                # Geminiの応答がJSON文字列でなかった場合、以前のJSON抽出ロジックを試す
-                try:
-                    start_idx = initial_response.find("{")
-                    end_idx = initial_response.rfind("}") + 1
-                    if start_idx != -1 and end_idx != -1:
-                        json_str = initial_response[start_idx:end_idx]
-                        parsed_initial = json.loads(json_str)
-                        research_directions = parsed_initial.get("research_directions", [])
-                        if not research_directions:
-                             print(f"Warning: 'research_directions' key not found or empty after manual JSON extraction: {json_str[:200]}...")
-                    else:
-                        print(f"Warning: No JSON object found in Gemini response after initial parse attempt: {initial_response[:200]}...")
-                except json.JSONDecodeError as inner_e:
-                    print(f"Inner JSON Decode Error: {inner_e} - Response: {initial_response[:200]}...")
-                except Exception as inner_e:
-                    print(f"Unexpected error during inner JSON extraction: {inner_e} - Response: {initial_response[:200]}...")
-            except Exception as e:
-                print(f"Unexpected error during initial Gemini response parsing: {e} - Response: {initial_response[:200]}...")
-
-            # If no directions are parsed, use fallback
+        research_directions = []
+        try:
+            # call_gemini_apiから返されるのは既にJSON文字列の可能性があるため、直接パースを試みる
+            parsed_initial = json.loads(initial_response)
+            research_directions = parsed_initial.get("research_directions", [])
             if not research_directions:
-                print("Using fallback research directions.")
-                research_directions = [
-                    {"direction": f"Advanced {topic} Framework", "rationale": "Need for comprehensive approach", "gap_addressed": "Integration challenges"},
-                    {"direction": f"Interdisciplinary {topic} Research", "rationale": "Cross-domain opportunities", "gap_addressed": "Disciplinary silos"},
-                    {"direction": f"Practical {topic} Applications", "rationale": "Real-world implementation", "gap_addressed": "Theory-practice gap"}
-                ]
+                print(f"Warning: 'research_directions' key not found or empty in Gemini response: {initial_response[:200]}...")
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error after call_gemini_api: {e} - Response: {initial_response[:200]}...")
+            # Geminiの応答がJSON文字列でなかった場合、以前のJSON抽出ロジックを試す
+            try:
+                start_idx = initial_response.find("{")
+                end_idx = initial_response.rfind("}") + 1
+                if start_idx != -1 and end_idx != -1:
+                    json_str = initial_response[start_idx:end_idx]
+                    parsed_initial = json.loads(json_str)
+                    research_directions = parsed_initial.get("research_directions", [])
+                    if not research_directions:
+                         print(f"Warning: 'research_directions' key not found or empty after manual JSON extraction: {json_str[:200]}...")
+                else:
+                    print(f"Warning: No JSON object found in Gemini response after initial parse attempt: {initial_response[:200]}...")
+            except json.JSONDecodeError as inner_e:
+                print(f"Inner JSON Decode Error: {inner_e} - Response: {initial_response[:200]}...")
+            except Exception as inner_e:
+                print(f"Unexpected error during inner JSON extraction: {inner_e} - Response: {initial_response[:200]}...")
+        except Exception as e:
+            print(f"Unexpected error during initial Gemini response parsing: {e} - Response: {initial_response[:200]}...")
+
+        # If no directions are parsed, use fallback
+        if not research_directions:
+            print("Using fallback research directions.")
+            research_directions = [
+                {"direction": f"Advanced {topic} Framework", "rationale": "Need for comprehensive approach", "gap_addressed": "Integration challenges"},
+                {"direction": f"Interdisciplinary {topic} Research", "rationale": "Cross-domain opportunities", "gap_addressed": "Disciplinary silos"},
+                {"direction": f"Practical {topic} Applications", "rationale": "Real-world implementation", "gap_addressed": "Theory-practice gap"}
+            ]
+
+        # Stage 4: Create detailed ideas (using fallback for speed)
+        detailed_ideas = []
+        for i, direction in enumerate(research_directions[:3], 1):
+            idea = create_fallback_idea(direction, topic, i)
+            detailed_ideas.append(idea)
+        
+        # Return response
+        return jsonify({
+            "success": True,
+            "ideas": detailed_ideas,
+            "topic": topic,
+            "focus_area": focus_area,
+            "analysis": {
+                "papers_analyzed": len(related_papers),
+                "research_directions": research_directions
+            },
+            "generated_at": time.strftime("%Y-%m-%d %H:%M:%S")
+        })
+        
+    except Exception as e:
+        print(f"Error in enhanced idea generation: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"An error occurred: {str(e)}"
+        }), 500
         
         # Stage 4: Create detailed ideas (using fallback for speed)
         detailed_ideas = []
