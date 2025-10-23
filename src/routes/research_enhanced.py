@@ -347,17 +347,16 @@ Respond only in valid JSON format."""
         initial_response = call_gemini_api(initial_prompt)
         print(f"Initial Response: {initial_response[:200]}...")
         
-        # Parse response
         research_directions = []
         try:
-            # call_gemini_apiから返されるのは既にJSON文字列の可能性があるため、直接パースを試みる
+            # call_gemini_apiは既にJSON文字列を返すように設計されているため、直接json.loadsを試みる
             parsed_initial = json.loads(initial_response)
             research_directions = parsed_initial.get("research_directions", [])
             if not research_directions:
                 print(f"Warning: 'research_directions' key not found or empty in Gemini response: {initial_response[:200]}...")
         except json.JSONDecodeError as e:
             print(f"JSON Decode Error after call_gemini_api: {e} - Response: {initial_response[:200]}...")
-            # Geminiの応答がJSON文字列でなかった場合、以前のJSON抽出ロジックを試す
+            # Geminiの応答がJSON文字列でなかった場合、またはJSONが不完全だった場合、JSONブロックを抽出するロジックを試す
             try:
                 start_idx = initial_response.find("{")
                 end_idx = initial_response.rfind("}") + 1
@@ -379,17 +378,45 @@ Respond only in valid JSON format."""
         # If no directions are parsed, use fallback
         if not research_directions:
             print("Using fallback research directions.")
+            # フォールバックロジックをより堅牢にする
             research_directions = [
                 {"direction": f"Advanced {topic} Framework", "rationale": "Need for comprehensive approach", "gap_addressed": "Integration challenges"},
                 {"direction": f"Interdisciplinary {topic} Research", "rationale": "Cross-domain opportunities", "gap_addressed": "Disciplinary silos"},
                 {"direction": f"Practical {topic} Applications", "rationale": "Real-world implementation", "gap_addressed": "Theory-practice gap"}
             ]
+            # フォールバックが発動した場合でも、詳細なアイデアを生成するためにcreate_fallback_ideaを使用
+            detailed_ideas = []
+            for i, direction in enumerate(research_directions[:3], 1):
+                idea = create_fallback_idea(direction, topic, i)
+                detailed_ideas.append(idea)
+            return jsonify({
+                "success": True,
+                "ideas": detailed_ideas,
+                "topic": topic,
+                "focus_area": focus_area,
+                "analysis": {
+                    "papers_analyzed": len(related_papers),
+                    "research_directions": research_directions
+                },
+                "generated_at": time.strftime("%Y-%m-%d %H:%M:%S")
+            })
 
-        # Stage 4: Create detailed ideas (using fallback for speed)
-        detailed_ideas = []
-        for i, direction in enumerate(research_directions[:3], 1):
-            idea = create_fallback_idea(direction, topic, i)
-            detailed_ideas.append(idea)
+
+        
+        # Return response
+        return jsonify({
+            "success": True,
+            "ideas": detailed_ideas,
+            "topic": topic,
+            "focus_area": focus_area,
+            "analysis": {
+                "papers_analyzed": len(related_papers),
+                "research_directions": research_directions
+            },
+            "generated_at": time.strftime("%Y-%m-%d %H:%M:%S")
+        })
+
+
         
         # Return response
         return jsonify({
@@ -411,11 +438,7 @@ Respond only in valid JSON format."""
             "error": f"An error occurred: {str(e)}"
         }), 500
         
-        # Stage 4: Create detailed ideas (using fallback for speed)
-        detailed_ideas = []
-        for i, direction in enumerate(research_directions[:3], 1):
-            idea = create_fallback_idea(direction, topic, i)
-            detailed_ideas.append(idea)
+
         
         # Return response
         return jsonify({
