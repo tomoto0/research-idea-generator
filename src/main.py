@@ -19,8 +19,10 @@ CORS(app)
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(research_enhanced_bp, url_prefix='/api')
-app.register_blueprint(trends_bp, url_prefix=\'/api\')
-app.register_blueprint(paper_search_bp, url_prefix=\'/api\')# uncomment if you need to use database
+app.register_blueprint(trends_bp, url_prefix='/api')
+app.register_blueprint(paper_search_bp, url_prefix='/api')
+
+# uncomment if you need to use database
 # app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # db.init_app(app)
