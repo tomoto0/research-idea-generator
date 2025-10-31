@@ -2,6 +2,11 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import {
+  generateResearchIdeas,
+  analyzeTrends,
+  searchArxivPapers,
+} from "./research";
 
 export const appRouter = router({
   system: systemRouter,
@@ -17,12 +22,17 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  research: router({
+    generateIdeas: publicProcedure
+      .input((val: any) => val)
+      .mutation(({ input }) => generateResearchIdeas(input)),
+    analyzeTrends: publicProcedure
+      .input((val: any) => val)
+      .mutation(({ input }) => analyzeTrends(input)),
+    searchPapers: publicProcedure
+      .input((val: any) => val)
+      .mutation(({ input }) => searchArxivPapers(input))
+  }),
 });
 
 export type AppRouter = typeof appRouter;
