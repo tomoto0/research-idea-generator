@@ -84,7 +84,7 @@ function getDefaultPapers(query: string, limit: number) {
 }
 
 /**
- * Generate research ideas using Gemini API
+ * Generate research ideas using Gemini API with bibliography
  */
 export async function generateResearchIdeas(input: {
   topic: string;
@@ -168,9 +168,21 @@ Format your response as a JSON array with objects containing these fields:
     const jsonMatch = contentStr.match(/\[[\s\S]*\]/);
     const ideas = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
 
+    // Add bibliography information to each idea
+    const ideasWithBibliography = ideas.slice(0, 3).map((idea: any) => ({
+      ...idea,
+      bibliography: papers.slice(0, 5).map((paper) => ({
+        title: paper.title,
+        authors: paper.authors,
+        date: paper.date,
+        url: paper.url,
+        abstract: paper.abstract.substring(0, 150),
+      })),
+    }));
+
     return {
       success: true,
-      ideas: ideas.slice(0, 3),
+      ideas: ideasWithBibliography,
       papers_analyzed: papers.length,
     };
   } catch (error) {

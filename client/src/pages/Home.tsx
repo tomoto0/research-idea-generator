@@ -123,12 +123,35 @@ export default function Home() {
                         <CardHeader>
                           <CardTitle className="text-lg">{idea.title}</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
+                        <CardContent className="space-y-3 text-sm">
                           {idea.overview?.background && (
                             <p><strong>Background:</strong> {idea.overview.background}</p>
                           )}
                           {idea.methodology?.research_design && (
                             <p><strong>Methodology:</strong> {idea.methodology.research_design}</p>
+                          )}
+                          {idea.feasibility?.overall_assessment && (
+                            <p><strong>Feasibility:</strong> {idea.feasibility.overall_assessment}</p>
+                          )}
+                          {idea.bibliography && idea.bibliography.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <p className="font-semibold mb-2">📚 Related References:</p>
+                              <div className="space-y-2">
+                                {idea.bibliography.map((ref: any, refIdx: number) => (
+                                  <div key={refIdx} className="p-2 bg-gray-50 rounded text-xs">
+                                    <p className="font-semibold text-gray-800">{ref.title}</p>
+                                    <p className="text-gray-600">Authors: {ref.authors}</p>
+                                    <p className="text-gray-600">Date: {ref.date}</p>
+                                    <p className="text-gray-700 mb-1">{ref.abstract}...</p>
+                                    {ref.url && (
+                                      <a href={ref.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                        View on arXiv →
+                                      </a>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           )}
                         </CardContent>
                       </Card>
@@ -215,3 +238,4 @@ export default function Home() {
     </div>
   );
 }
+
