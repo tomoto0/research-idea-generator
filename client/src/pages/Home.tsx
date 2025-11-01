@@ -27,8 +27,8 @@ export default function Home() {
     setLoading(true);
     try {
       const result = await generateIdeasMutation.mutateAsync({
-        topic,
-        focus_area: focusArea,
+        topic: topic.trim(),
+        focus_area: focusArea.trim(),
         num_papers: numPapers,
         categories: [],
       });
@@ -45,7 +45,7 @@ export default function Home() {
     setLoading(true);
     try {
       const result = await analyzeTrendsMutation.mutateAsync({
-        topic: trendTopic,
+        topic: trendTopic.trim(),
         time_range: "past_3_years",
         num_papers: 300,
         categories: [],
@@ -63,7 +63,7 @@ export default function Home() {
     setLoading(true);
     try {
       const result = await searchPapersMutation.mutateAsync({
-        query: searchQuery,
+        query: searchQuery.trim(),
         limit: 20,
       });
       setSearchResults(result);
@@ -95,24 +95,48 @@ export default function Home() {
                 <CardTitle>Research Idea Generation</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Input
-                  placeholder="Research topic (e.g., quantum computing, AI ethics)"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                />
-                <Input
-                  placeholder="Focus area (optional)"
-                  value={focusArea}
-                  onChange={(e) => setFocusArea(e.target.value)}
-                />
-                <Input
-                  type="number"
-                  placeholder="Number of papers"
-                  value={numPapers}
-                  onChange={(e) => setNumPapers(parseInt(e.target.value))}
-                  min="5"
-                  max="50"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Research Topic (Keywords or Research Area)
+                  </label>
+                  <Input
+                    placeholder="e.g., quantum computing, artificial intelligence ethics, machine learning applications"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Enter research keywords or a research area. You can use multiple words and phrases.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Focus Area (Optional - Specific Research Direction)
+                  </label>
+                  <Input
+                    placeholder="e.g., ethical implications, practical applications, theoretical foundations"
+                    value={focusArea}
+                    onChange={(e) => setFocusArea(e.target.value)}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Optionally specify a particular aspect or direction for the research ideas.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Number of Papers to Analyze (5-50)
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="10"
+                    value={numPapers}
+                    onChange={(e) => setNumPapers(parseInt(e.target.value) || 10)}
+                    min="5"
+                    max="50"
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Select how many recent papers to analyze for generating ideas.</p>
+                </div>
+
                 <Button onClick={handleGenerateIdeas} disabled={loading} className="w-full">
                   {loading ? "Generating..." : "🚀 Generate Ideas"}
                 </Button>
@@ -168,11 +192,17 @@ export default function Home() {
                 <CardTitle>Research Trend Analysis</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Input
-                  placeholder="Research topic"
-                  value={trendTopic}
-                  onChange={(e) => setTrendTopic(e.target.value)}
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Research Topic for Trend Analysis
+                  </label>
+                  <Input
+                    placeholder="Research topic"
+                    value={trendTopic}
+                    onChange={(e) => setTrendTopic(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
                 <Button onClick={handleAnalyzeTrends} disabled={loading} className="w-full">
                   {loading ? "Analyzing..." : "📊 Analyze Trends"}
                 </Button>
@@ -203,11 +233,17 @@ export default function Home() {
                 <CardTitle>Paper Search</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Input
-                  placeholder="Search query"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Search Query (Keywords or Research Topic)
+                  </label>
+                  <Input
+                    placeholder="Search query"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
                 <Button onClick={handleSearchPapers} disabled={loading} className="w-full">
                   {loading ? "Searching..." : "🔎 Search Papers"}
                 </Button>
