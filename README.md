@@ -108,42 +108,42 @@ The application integrates with the arXiv API to access a comprehensive database
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Frontend (React 19)                   │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │  Home.tsx (Multi-tab UI)                         │  │
-│  │  ├─ Idea Generation Tab                          │  │
-│  │  ├─ Trend Analysis Tab                           │  │
-│  │  └─ Paper Search Tab                             │  │
-│  └──────────────────────────────────────────────────┘  │
-│                        │                                 │
-│                        ▼ (tRPC calls)                    │
+│                    Frontend (React 19)                  │
+│  ┌──────────────────────────────────────────────────┐ 　 　│
+│  │  Home.tsx (Multi-tab UI)                         │ 　　 │
+│  │  ├─ Idea Generation Tab                          │ 　　 │
+│  │  ├─ Trend Analysis Tab                           │ 　　 │
+│  │  └─ Paper Search Tab                             │ 　　 │
+│  └──────────────────────────────────────────────────┘ 　　 │
+│                        │                                │
+│                        ▼ (tRPC calls)                   │
 └─────────────────────────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │              Backend (Express 4 + tRPC 11)              │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │  server/routers.ts (tRPC Router)                 │  │
-│  │  ├─ research.generateIdeas                       │  │
-│  │  ├─ research.analyzeTrends                       │  │
-│  │  └─ research.searchPapers                        │  │
-│  └──────────────────────────────────────────────────┘  │
-│                        │                                 │
-│                        ▼                                 │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │  server/research.ts (Business Logic)             │  │
-│  │  ├─ searchArxivPapersSimple()                    │  │
-│  │  ├─ generateResearchIdeas()                      │  │
-│  │  ├─ analyzeTrends()                              │  │
-│  │  └─ searchArxivPapers()                          │  │
-│  └──────────────────────────────────────────────────┘  │
-│                        │                                 │
+│  ┌──────────────────────────────────────────────────┐  　　│
+│  │  server/routers.ts (tRPC Router)                 │ 　　 │
+│  │  ├─ research.generateIdeas                       │ 　　 │
+│  │  ├─ research.analyzeTrends                       │  　　│
+│  │  └─ research.searchPapers                        │ 　　 │
+│  └──────────────────────────────────────────────────┘  　　│
+│                        │                              　　 │
+│                        ▼                              　　 │
+│  ┌──────────────────────────────────────────────────┐  　　│
+│  │  server/research.ts (Business Logic)             │ 　　 │
+│  │  ├─ searchArxivPapersSimple()                    │ 　　 │
+│  │  ├─ generateResearchIdeas()                      │ 　　　　│
+│  │  ├─ analyzeTrends()                              │  　　│
+│  │  └─ searchArxivPapers()                          │ 　　 │
+│  └──────────────────────────────────────────────────┘ 　　 │
+│                        │                                │
 │         ┌──────────────┼──────────────┐                 │
 │         ▼              ▼              ▼                 │
-│    ┌────────┐    ┌─────────┐    ┌──────────┐           │
-│    │ arXiv  │    │ Gemini  │    │ Database │           │
-│    │  API   │    │   LLM   │    │ (MySQL)  │           │
-│    └────────┘    └─────────┘    └──────────┘           │
+│    ┌────────┐    ┌─────────┐    ┌──────────┐           　　│
+│    │ arXiv  │    │ Gemini  │    │ Database │          　　 │
+│    │  API   │    │   LLM   │    │ (MySQL)  │           　　│
+│    └────────┘    └─────────┘    └──────────┘          　　 │
 └─────────────────────────────────────────────────────────┘
 ```
 
